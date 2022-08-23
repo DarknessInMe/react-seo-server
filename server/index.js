@@ -1,17 +1,14 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const data = require('./data');
+const { images, defaultData, testData } = require('./data');
 const fetch = require('node-fetch');
+const swapMetaTags = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// static resources should just be served as they are
-app.use(express.static(
-    path.resolve(__dirname, '..', 'build'),
-    { maxAge: '30d' },
-));
+app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
 app.listen(PORT, (error) => {
     if (error) return console.log('Error during app startup', error);
@@ -20,7 +17,39 @@ app.listen(PORT, (error) => {
 });
 
 const indexPath  = path.resolve(__dirname, '..', 'build', 'index.html');
-app.get('/posts/:id', (req, res) => {
+
+app.get('/', (_, res) => {
+
+    console.warn('default route!');
+
+    fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+        if (err) {
+            console.error('Error during file reading', err);
+            return res.status(404).end()
+        }
+
+        return res.send(swapMetaTags(htmlData, defaultData));
+    });
+});
+
+app.get('/test', (_, res) => {
+
+    console.warn('test route!');
+
+    fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+        if (err) {
+            console.error('Error during file reading', err);
+            return res.status(404).end()
+        }
+
+        return res.send(swapMetaTags(htmlData, testData));
+    });
+});
+
+app.get('/post/:id', (req, res) => {
+
+    console.warn('dynamic route!');
+
     fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
         if (err) {
             console.error('Error during file reading', err);
@@ -28,20 +57,32 @@ app.get('/posts/:id', (req, res) => {
         }
 
         const postId = req.params.id;
-        const imageIndex = postId - 1;
+
+        if (!postId) return res.send(swapMetaTags(htmlData, defaultData));
+
+        const imageIndex = images[postId - 1] ? postId - 1 : Math.floor(Math.random() * images.length - 1);
+        const image = images[imageIndex];
         const post = await fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
             .then(response => response.json())
+        
+        return res.send(swapMetaTags(htmlData, {
+            title: `Post ${postId}`,
+            body: post.body,
+            image: image,
+        }));
+    });
+});
 
-        htmlData = htmlData.replace(
-            '<title>React App</title>',
-            `<title>${post.title}</title>`
-        )
-        .replace('__META_OG_TITLE__', post.title)
-        .replace('__META_OG_DESCRIPTION__', post.body)
-        .replace('__META_DESCRIPTION__', post.body)
-        .replace('__META_OG_IMAGE__', data[imageIndex])
-        .replace('__META_SECURE_OG_IMAGE__', data[imageIndex])
+app.get('*', (_, res) => {
 
-        return res.send(htmlData);
+    console.warn('default route!');
+
+    fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+        if (err) {
+            console.error('Error during file reading', err);
+            return res.status(404).end()
+        }
+
+        return res.send(swapMetaTags(htmlData, defaultData));
     });
 });
