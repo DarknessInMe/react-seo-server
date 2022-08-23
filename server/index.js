@@ -28,7 +28,7 @@ app.get('/posts/:id', (req, res) => {
         }
 
         const postId = req.params.id;
-
+        const imageIndex = postId - 1;
         const post = await fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
             .then(response => response.json())
 
@@ -39,8 +39,8 @@ app.get('/posts/:id', (req, res) => {
         .replace('__META_OG_TITLE__', post.title)
         .replace('__META_OG_DESCRIPTION__', post.body)
         .replace('__META_DESCRIPTION__', post.body)
-        .replace('__META_OG_IMAGE__', data[postId])
-        .replace('__META_SECURE_OG_IMAGE__', data[postId])
+        .replace('__META_OG_IMAGE__', data[imageIndex])
+        .replace('__META_SECURE_OG_IMAGE__', data[imageIndex])
 
         return res.send(htmlData);
     });
