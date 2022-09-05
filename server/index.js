@@ -7,8 +7,9 @@ const swapMetaTags = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const indexPath = path.resolve(__dirname, '../build', 'index.html');
 
-app.use(express.static(path.resolve(__dirname, '..', 'build')));
+app.use(express.static(path.resolve(__dirname, '../build')));
 
 app.listen(PORT, (error) => {
     if (error) return console.log('Error during app startup', error);
@@ -16,24 +17,7 @@ app.listen(PORT, (error) => {
     console.log(`listening on ${PORT}...`);
 });
 
-const indexPath  = path.resolve(__dirname, '..', 'build', 'index.html');
-
-app.get('/', (_, res) => {
-
-    console.warn('default route!');
-
-    fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
-        if (err) {
-            console.error('Error during file reading', err);
-            return res.status(404).end()
-        }
-
-        return res.send(swapMetaTags(htmlData, defaultData));
-    });
-});
-
 app.get('/test', (_, res) => {
-
     console.warn('test route!');
 
     fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
@@ -47,7 +31,6 @@ app.get('/test', (_, res) => {
 });
 
 app.get('/post/:id', (req, res) => {
-
     console.warn('dynamic route!');
 
     fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
@@ -73,11 +56,10 @@ app.get('/post/:id', (req, res) => {
     });
 });
 
-app.get('*', (_, res) => {
-
+app.get('/', (_, res) => {
     console.warn('default route!');
 
-    fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+    fs.readFile(indexPath, 'utf8', (err, htmlData) => {
         if (err) {
             console.error('Error during file reading', err);
             return res.status(404).end()
