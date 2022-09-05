@@ -1,4 +1,4 @@
-# Getting Started with react-seo
+# Getting Started with react-seo-server
 
 This is a try to add SEO features for project with dynamic data & routes. Inspired by [this article](https://blog.logrocket.com/adding-dynamic-meta-tags-react-app-without-ssr/)
 
