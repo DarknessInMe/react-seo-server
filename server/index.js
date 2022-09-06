@@ -48,15 +48,14 @@ app.get('/post/:id', (req, res) => {
 
         if (!postId) return res.send(swapMetaTags(htmlData, defaultData));
 
-        const imageIndex = images[postId - 1] ? postId - 1 : Math.floor(Math.random() * images.length - 1);
-        const image = images[imageIndex];
+        const image = images[postId - 1] || images[Math.floor(Math.random() * images.length - 1)];
         const post = await fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
             .then(response => response.json())
         
         return res.send(swapMetaTags(htmlData, {
             title: `Post ${postId}`,
             body: post.body,
-            image: image,
+            image,
         }));
     });
 });
