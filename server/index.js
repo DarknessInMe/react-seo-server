@@ -9,12 +9,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const indexPath = path.resolve(__dirname, '../build', 'index.html');
 
-app.use(express.static(path.resolve(__dirname, '../build')));
+app.get('/', (_, res) => {
+    console.warn('default route!');
 
-app.listen(PORT, (error) => {
-    if (error) return console.log('Error during app startup', error);
+    fs.readFile(indexPath, 'utf8', (err, htmlData) => {
+        if (err) {
+            console.error('Error during file reading', err);
+            return res.status(404).end()
+        }
 
-    console.log(`listening on ${PORT}...`);
+        return res.send(swapMetaTags(htmlData, defaultData));
+    });
 });
 
 app.get('/test', (_, res) => {
@@ -56,15 +61,10 @@ app.get('/post/:id', (req, res) => {
     });
 });
 
-app.get('/', (_, res) => {
-    console.warn('default route!');
+app.use(express.static(path.resolve(__dirname, '../build')));
 
-    fs.readFile(indexPath, 'utf8', (err, htmlData) => {
-        if (err) {
-            console.error('Error during file reading', err);
-            return res.status(404).end()
-        }
+app.listen(PORT, (error) => {
+    if (error) return console.log('Error during app startup', error);
 
-        return res.send(swapMetaTags(htmlData, defaultData));
-    });
+    console.log(`listening on ${PORT}...`);
 });
