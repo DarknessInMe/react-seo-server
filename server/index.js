@@ -9,6 +9,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const indexPath = path.resolve(__dirname, '../build', 'index.html');
 
+app.use(express.static(path.resolve(__dirname, '../build')));
+
 app.get('/', (_, res) => {
     console.warn('default route!');
 
@@ -60,7 +62,18 @@ app.get('/post/:id', (req, res) => {
     });
 });
 
-app.use(express.static(path.resolve(__dirname, '../build')));
+app.get('*', (_, res) => {
+    console.warn('other route!');
+
+    fs.readFile(indexPath, 'utf8', (err, htmlData) => {
+        if (err) {
+            console.error('Error during file reading', err);
+            return res.status(404).end()
+        }
+
+        return res.send(swapMetaTags(htmlData, defaultData));
+    });
+});
 
 app.listen(PORT, (error) => {
     if (error) return console.log('Error during app startup', error);
