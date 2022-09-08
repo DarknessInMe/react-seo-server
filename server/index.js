@@ -9,8 +9,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const indexPath = path.resolve(__dirname, '../build', 'index.html');
 
-app.use(express.static(path.resolve(__dirname, '../build')));
-
 app.get('/', (_, res) => {
     console.warn('default route!');
 
@@ -23,6 +21,8 @@ app.get('/', (_, res) => {
         return res.send(swapMetaTags(htmlData, defaultData));
     });
 });
+
+app.use(express.static(path.resolve(__dirname, '../build')));
 
 app.get('/test', (_, res) => {
     console.warn('test route!');
