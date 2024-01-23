@@ -22,8 +22,6 @@ app.get('/', (_, res) => {
     });
 });
 
-app.use(express.static(path.resolve(__dirname, '../build')));
-
 app.get('/test', (_, res) => {
     console.warn('test route!');
 
@@ -61,6 +59,8 @@ app.get('/post/:id', (req, res) => {
         }));
     });
 });
+
+app.use(express.static(path.resolve(__dirname, '../build')));
 
 app.get('*', (_, res) => {
     console.warn('other route!');
